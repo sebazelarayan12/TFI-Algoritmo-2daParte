@@ -2,84 +2,168 @@
 #include <stdio.h>
 #include <cctype>
 #include <cstring>
+#include <string.h>
 
-bool esNombreUsuarioValido(const char* nombreUsuario) {
+struct Fecha
+{
+    int dia;
+    int mes;
+    int ano;
+};
+
+struct Usuarios
+{
+    char Usuario[11];
+    char Contrasena[33];
+    char ApellidoNombre[60];
+};
+
+struct Profesionales
+{
+    char ApellidoNombre[60];
+    int IdProfesional;
+    int Dni;
+    char Telefono[25];
+};
+
+struct Pacientes
+{
+    char ApellidoNombre[60];
+    char Domicilio[60];
+    int DniPaciente;
+    char Localidad[60];
+    Fecha FechadeNacimiento;
+    char Telefono[25];
+};
+
+struct Turnos
+{
+    int IdProfesional;
+    Fecha fecha;
+    int DniPaciente;
+    char DetalledeAtencion[380];
+};
+
+bool esNombreUsuarioValido(const char *nombreUsuario)
+{
     int longitud = strlen(nombreUsuario);
-    if (longitud < 6 || longitud > 10) {
+    if (longitud < 6 || longitud > 10)
+    {
         return false;
     }
-    if (!islower(nombreUsuario[0])) {
+    if (!islower(nombreUsuario[0]))
+    {
         return false;
     }
     int contadorMayusculas = 0;
     int contadorDigitos = 0;
-    for (int i = 0; i < longitud; ++i) {
-        if (isupper(nombreUsuario[i])) {
+    for (int i = 0; i < longitud; ++i)
+    {
+        if (isupper(nombreUsuario[i]))
+        {
             ++contadorMayusculas;
-        } else if (isdigit(nombreUsuario[i])) {
+        }
+        else if (isdigit(nombreUsuario[i]))
+        {
             ++contadorDigitos;
-        } else if (!islower(nombreUsuario[i]) && strchr("+-/*?¿!¡", nombreUsuario[i]) == NULL) {
+        }
+        else if (!islower(nombreUsuario[i]) && strchr("+-/*?¿!¡", nombreUsuario[i]) == NULL)
+        {
             return false;
         }
     }
-    if (contadorMayusculas < 2 || contadorDigitos > 3) {
+    if (contadorMayusculas < 2 || contadorDigitos > 3)
+    {
         return false;
     }
     return true;
 }
 
-bool esContrasenaValida(const char* contrasena) {
+bool esContrasenaValida(const char *contrasena)
+{
     int longitud = strlen(contrasena);
-    if (longitud < 6 || longitud > 32) {
+    if (longitud < 6 || longitud > 32)
+    {
         return false;
     }
     bool tieneMayuscula = false;
     bool tieneMinuscula = false;
     bool tieneDigito = false;
-    for (int i = 0; i < longitud; ++i) {
-        if (isupper(contrasena[i])) {
+    for (int i = 0; i < longitud; ++i)
+    {
+        if (isupper(contrasena[i]))
+        {
             tieneMayuscula = true;
-        } else if (islower(contrasena[i])) {
+        }
+        else if (islower(contrasena[i]))
+        {
             tieneMinuscula = true;
-        } else if (isdigit(contrasena[i])) {
+        }
+        else if (isdigit(contrasena[i]))
+        {
             tieneDigito = true;
-        } else {
+        }
+        else
+        {
             return false;
         }
-        if (i >= 2 && isdigit(contrasena[i]) && isdigit(contrasena[i-1]) && isdigit(contrasena[i-2])) {
+        if (i >= 2 && isdigit(contrasena[i]) && isdigit(contrasena[i - 1]) && isdigit(contrasena[i - 2]))
+        {
             return false;
         }
-        if (i >= 1 && ((islower(contrasena[i]) && islower(contrasena[i-1]) && contrasena[i] == contrasena[i-1] + 1) ||
-                       (isupper(contrasena[i]) && isupper(contrasena[i-1]) && contrasena[i] == contrasena[i-1] + 1))) {
+        if (i >= 1 && ((islower(contrasena[i]) && islower(contrasena[i - 1]) && contrasena[i] == contrasena[i - 1] + 1) ||
+                       (isupper(contrasena[i]) && isupper(contrasena[i - 1]) && contrasena[i] == contrasena[i - 1] + 1)))
+        {
             return false;
         }
     }
     return tieneMayuscula && tieneMinuscula && tieneDigito;
 }
 
-bool iniciarSesion(){
+void crearNuevoRecepcionista(){
 
-    char nombreUsuario[11];
-    char contrasena[33];
+    Usuarios nuevoRecepcionista;
 
-    printf("\nIngresar nombre de usuario: ");
-            scanf("%10s", nombreUsuario);
-            printf("Ingresar contrasena: ");
-            scanf("%32s", contrasena);
-            if (esNombreUsuarioValido(nombreUsuario) && esContrasenaValida(contrasena)) {
-                printf("\nInicio de sesion exitoso.\n");
-                return true;
-            } else {
-                printf("\nNombre de usuario o contrasena invalidos.\n");
-                return false;
-            }
+    bool bandera = true;
+
+    printf("Introduce el Usuario (máximo 11 caracteres): ");
+    scanf("%11s", nuevoRecepcionista.Usuario);
+
+    printf("Introduce la Contraseña (máximo 33 caracteres): ");
+    scanf("%33s", nuevoRecepcionista.Contrasena);
+
+    printf("Introduce el NombreApellido (máximo 60 caracteres): ");
+    scanf("%60s", nuevoRecepcionista.ApellidoNombre);
+    while(bandera = true){
+        if (esNombreUsuarioValido(nuevoRecepcionista.Usuario) && esContrasenaValida(nuevoRecepcionista.Contrasena))
+    {
+        printf("\nUsuario creado con exito.\n");
+        FILE *file = fopen("Recepcionistas.dat", "ab");
+        if (file == NULL)
+        {
+            printf("No se pudo abrir el archivo.\n");
+            return;
+        }
+
+        fwrite(&nuevoRecepcionista, sizeof(Usuarios), 1, file);
+        fclose(file);
+        bandera = false;
+    }
+    else
+    {
+        printf("\nNombre de usuario o contrasena invalidos.\n");
+    }
+    }
+    
 }
 
-void moduloConsultorios() {
+void moduloConsultorios()
+{
     int opcion;
     bool continuar = true;
     bool sesion_iniciada = false;
-    while (continuar) {
+    while (continuar)
+    {
         printf("\nModulo Consultorios\n");
         printf("=========================\n");
         printf("1.- Iniciar Sesion\n");
@@ -88,39 +172,55 @@ void moduloConsultorios() {
         printf("4.- Volver al menu principal\n\n");
         printf("Ingrese una opcion: ");
         scanf("%d", &opcion);
-        switch (opcion) {
-            case 1:
-                iniciarSesion();
-                break;
-            case 2:
-                if (sesion_iniciada) {
-                    // Aqui va el codigo para mostrar la lista de espera de turnos
-                } else {
-                    printf("\nDebes iniciar sesion primero.\n");
-                }
-                break;
-            case 3:
-                if (sesion_iniciada) {
-                    // Aqui va el codigo para registrar la historia clinica
-                } else {
-                    printf("\nDebes iniciar sesion primero.\n");
-                }
-                break;
-            case 4:
-                printf("\nVolviendo al menu principal...\n");
-                continuar = false;
-                break;
-            default:
-                printf("\nOpcion invalida. Intenta de nuevo.\n");
+        switch (opcion)
+        {
+        case 1:
+            if (sesion_iniciada)
+            {
+                // Aqui va el codigo para iniciar sesion
+            }
+            else
+            {
+                printf("\nDebes iniciar sesion primero.\n");
+            }
+            break;
+        case 2:
+            if (sesion_iniciada)
+            {
+                // Aqui va el codigo para mostrar la lista de espera de turnos
+            }
+            else
+            {
+                printf("\nDebes iniciar sesion primero.\n");
+            }
+            break;
+        case 3:
+            if (sesion_iniciada)
+            {
+                // Aqui va el codigo para registrar la historia clinica
+            }
+            else
+            {
+                printf("\nDebes iniciar sesion primero.\n");
+            }
+            break;
+        case 4:
+            printf("\nVolviendo al menu principal...\n");
+            continuar = false;
+            break;
+        default:
+            printf("\nOpcion invalida. Intenta de nuevo.\n");
         }
     }
 }
 
-void moduloRecepcionista() {
+void moduloRecepcionista()
+{
     int opcion;
     bool continuar = true;
     bool sesion_iniciada = false;
-    while (continuar) {
+    while (continuar)
+    {
         printf("\nModulo del recepcionista\n");
         printf("=========================\n");
         printf("1.- Iniciar Sesion\n");
@@ -130,99 +230,173 @@ void moduloRecepcionista() {
         printf("5.- Volver al menu principal\n\n");
         printf("Ingrese una opcion: ");
         scanf("%d", &opcion);
-        switch (opcion) {
-            case 1:
-                iniciarSesion();
-                sesion_iniciada = true;
-                break;
-            case 2:
-                if (sesion_iniciada) {
-                    // Aqui va el codigo para registrar pacientes
-                } else {
-                    printf("\nDebes iniciar sesion primero.\n");
-                }
-                break;
-            case 3:
-                if (sesion_iniciada) {
-                    // Aqui va el codigo para registrar turno
-                } else {
-                    printf("\nDebes iniciar sesion primero.\n");
-                }
-                break;
-            case 4:
-                if (sesion_iniciada) {
-                    // Aqui va el codigo para mostrar el listado de atenciones
-                } else {
-                    printf("\nDebes iniciar sesion primero.\n");
-                }
-                break;
-            case 5:
-                printf("\nVolviendo al menu principal...\n");
-                continuar = false;
-                break;
-            default:
-                printf("\nOpcion invalida. Intenta de nuevo.\n");
+        switch (opcion)
+        {
+        case 1:
+            if (sesion_iniciada)
+            {
+                // Aqui va el codigo para iniciar sesion
+            }
+            else
+            {
+                printf("\nDebes iniciar sesion primero.\n");
+            }
+            break;
+        case 2:
+            if (sesion_iniciada)
+            {
+                // Aqui va el codigo para registrar pacientes
+            }
+            else
+            {
+                printf("\nDebes iniciar sesion primero.\n");
+            }
+            break;
+        case 3:
+            if (sesion_iniciada)
+            {
+                // Aqui va el codigo para registrar turno
+            }
+            else
+            {
+                printf("\nDebes iniciar sesion primero.\n");
+            }
+            break;
+        case 4:
+            if (sesion_iniciada)
+            {
+                // Aqui va el codigo para mostrar el listado de atenciones
+            }
+            else
+            {
+                printf("\nDebes iniciar sesion primero.\n");
+            }
+            break;
+        case 5:
+            printf("\nVolviendo al menu principal...\n");
+            continuar = false;
+            break;
+        default:
+            printf("\nOpcion invalida. Intenta de nuevo.\n");
         }
     }
 }
 
-void moduloAdministracion() {
+void moduloAdministracion()
+{
     int opcion;
     bool continuar = true;
-    bool sesion_iniciada = false;
-    while (continuar) {
+    // bool sesion_iniciada = false;
+    bool sesion_iniciada_admin = false;
+    while (continuar)
+    {
         printf("\nModulo Administracion\n");
         printf("=========================\n");
         printf("1.- Registrar Profesionales\n");
         printf("2.- Registrar Usuario Recepcionista\n");
         printf("3.- Atenciones por Profesional\n");
         printf("4.- Ranking de Profesionales por Atenciones\n");
-        printf("5.- Volver al menu principal\n\n");
+        printf("5.- Iniciar sesion como administrador\n\n");
+        printf("6.- Volver al menu principal\n\n");
         printf("Ingrese una opcion: ");
         scanf("%d", &opcion);
-        switch (opcion) {
-            case 1:
-                if (sesion_iniciada) {
-                    // Aqui va el codigo para registrar profesionales
-                } else {
-                    printf("\nDebes iniciar sesion primero.\n");
+        switch (opcion)
+        {
+        case 1:
+            if (sesion_iniciada_admin)
+            {
+                // Aqui va el codigo para registrar profesionales
+            }
+            else
+            {
+                printf("\nDebes iniciar sesion primero.\n");
+            }
+            break;
+        case 2:
+            // usuario creado para la ejecucion de las otras opciones --> provisorio
+            // BORRAR AL TERMINAR
+            if (sesion_iniciada_admin)
+            {
+                crearNuevoRecepcionista();
+            }
+            else
+            {
+                printf("\nDebes iniciar sesion primero.\n");
+            }
+            break;
+        case 3:
+            if (sesion_iniciada_admin)
+            {
+                // Aqui va el codigo para mostrar las atenciones por profesional
+            }
+            else
+            {
+                printf("\nDebes iniciar sesion primero.\n");
+            }
+            break;
+        case 4:
+            if (sesion_iniciada_admin)
+            {
+                // Aqui va el codigo para mostrar el ranking de profesionales por atenciones
+            }
+            else
+            {
+                printf("\nDebes iniciar sesion primero.\n");
+            }
+            break;
+
+        case 5:
+            struct Usuarios usuario;
+            FILE *archivo;
+            char Usuario[11];
+            char Contrasena[32];
+            printf("Ingrese el nombre de usuario: ");
+            scanf("%s", Usuario);
+            printf("Ingrese la contrasena: ");
+            scanf("%s", Contrasena);
+
+            // Abre el archivo para lectura
+            archivo = fopen("Recepcionistas.dat", "rb");
+            if (archivo == NULL)
+            {
+                printf("No se pudo abrir el archivo para lectura\n");
+            }
+
+            // Lee la estructura de usuario del archivo
+            while (fread(&usuario, sizeof(Usuarios), 1, archivo))
+            {
+                if (strcmp(usuario.Usuario, Usuario) == 0 && strcmp(usuario.Contrasena, Contrasena) == 0)
+                {
+                    printf("Inicio de sesion exitoso.\n");
+                    fclose(archivo);
+                    sesion_iniciada_admin = true;
                 }
-                break;
-            case 2:
-                if (sesion_iniciada) {
-                    // Aqui va el codigo para registrar usuario recepcionista
-                } else {
-                    printf("\nDebes iniciar sesion primero.\n");
+                else
+                {
+                    printf("Nombre de usuario o contrasena incorrectos.\n");
                 }
-                break;
-            case 3:
-                if (sesion_iniciada) {
-                    // Aqui va el codigo para mostrar las atenciones por profesional
-                } else {
-                    printf("\nDebes iniciar sesion primero.\n");
-                }
-                break;
-            case 4:
-                if (sesion_iniciada) {
-                    // Aqui va el codigo para mostrar el ranking de profesionales por atenciones
-                } else {
-                    printf("\nDebes iniciar sesion primero.\n");
-                }
-                break;
-            case 5:
-                printf("\nVolviendo al menu principal...\n");
-                continuar = false;
-                break;
-            default:
-                printf("\nOpcion invalida. Intenta de nuevo.\n");
+            }
+
+            // Cierra el archivo
+            fclose(archivo);
+
+            break;
+        case 6:
+            printf("\nVolviendo al menu principal...\n");
+            continuar = false;
+            break;
+        default:
+            printf("\nOpcion invalida. Intenta de nuevo.\n");
         }
     }
 }
 
-int main() {
+int main()
+{
     int opcion;
 
-    while (true) {
+    while (true)
+    {
         printf("\nMenu Principal\n");
         printf("=========================\n");
         printf("1.- Modulo Consultorios\n");
@@ -232,21 +406,22 @@ int main() {
         printf("Ingrese una opcion: ");
         scanf("%d", &opcion);
 
-        switch (opcion) {
-            case 1:
-                moduloConsultorios();
-                break;
-            case 2:
-                moduloRecepcionista();
-                break;
-            case 3:
-                moduloAdministracion();
-                break;
-            case 4:
-                printf("\nCerrando la aplicacion...\n");
-                return 0;
-            default:
-                printf("\nOpcion invalida. Intenta de nuevo.\n");
+        switch (opcion)
+        {
+        case 1:
+            moduloConsultorios();
+            break;
+        case 2:
+            moduloRecepcionista();
+            break;
+        case 3:
+            moduloAdministracion();
+            break;
+        case 4:
+            printf("\nCerrando la aplicacion...\n");
+            return 0;
+        default:
+            printf("\nOpcion invalida. Intenta de nuevo.\n");
         }
     }
 }
