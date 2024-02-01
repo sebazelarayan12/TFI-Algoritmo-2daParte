@@ -3,6 +3,7 @@
 #include <cctype>
 #include <cstring>
 #include <string.h>
+#include <stdlib.h>
 
 struct Fecha
 {
@@ -127,10 +128,10 @@ void crearNuevoRecepcionista()
 
     do
     {
-        printf("Introduce el Usuario (máximo 11 caracteres): ");
+        printf("\nIntroduce el Nuevo Usuario (minimo 6 y maximo 10 caracteres) \nDebe comenzar con una letra minuscula\nDebe tener 2 letras mayusculas\nTener maximo 3 digitos\n\n--> ");
         scanf("%11s", nuevoRecepcionista.Usuario);
 
-        printf("Introduce la Contraseña (máximo 33 caracteres): ");
+        printf("\nIntroduce la Contrasena del nuevo usuario (minimo 6 y maximo 32 caracteres) \nDebera contener al menos una letra mayuscula, una letra minuscula y un numero\nNo debe tener mas de 3 caracteres numericos consecutivos\nNo debe tener 2 caracteres consecutivos que refieran a letras alfabeticamente consecutivas (ascendentemente)\n\n--> ");
         scanf("%33s", nuevoRecepcionista.Contrasena);
 
         if (esNombreUsuarioValido(nuevoRecepcionista.Usuario) && esContrasenaValida(nuevoRecepcionista.Contrasena))
@@ -138,6 +139,7 @@ void crearNuevoRecepcionista()
             printf("Introduce el NombreApellido (máximo 60 caracteres): ");
             scanf("%60s", nuevoRecepcionista.ApellidoNombre);
             printf("\nUsuario creado con exito.\n");
+            getch();
             FILE *file = fopen("Recepcionistas.dat", "ab");
             if (file == NULL)
             {
@@ -154,11 +156,12 @@ void crearNuevoRecepcionista()
             printf("\nNombre de usuario o contrasena invalidos.\n");
             printf("¿Deseas intentarlo de nuevo? (s/n): ");
             scanf(" %c", &opcion); // El espacio antes de %c ignora los espacios en blanco
+            system("CLS");
         }
     } while (opcion == 's' || opcion == 'S');
 }
 
-
+// funcion utilizada para crear un usuario admin para corroborar funciones
 
 void crearUsuarioProvisorio()
 {
@@ -202,6 +205,7 @@ void moduloConsultorios()
         printf("4.- Volver al menu principal\n\n");
         printf("Ingrese una opcion: ");
         scanf("%d", &opcion);
+        system("CLS"); 
         switch (opcion)
         {
         case 1:
@@ -260,6 +264,7 @@ void moduloRecepcionista()
         printf("5.- Volver al menu principal\n\n");
         printf("Ingrese una opcion: ");
         scanf("%d", &opcion);
+        system("CLS"); 
         switch (opcion)
         {
         case 1:
@@ -330,6 +335,7 @@ void moduloAdministracion()
         printf("6.- Volver al menu principal\n\n");
         printf("Ingrese una opcion: ");
         scanf("%d", &opcion);
+        system("CLS"); 
         switch (opcion)
         {
         case 1:
@@ -435,6 +441,7 @@ int main()
         printf("4.- Cerrar la aplicacion.\n\n");
         printf("Ingrese una opcion: ");
         scanf("%d", &opcion);
+        system("CLS");
 
         switch (opcion)
         {
