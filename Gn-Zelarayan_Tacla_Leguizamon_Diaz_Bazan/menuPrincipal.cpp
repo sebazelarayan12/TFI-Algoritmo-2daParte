@@ -120,41 +120,71 @@ bool esContrasenaValida(const char *contrasena)
     return tieneMayuscula && tieneMinuscula && tieneDigito;
 }
 
-void crearNuevoRecepcionista(){
-
+void crearNuevoRecepcionista()
+{
     Usuarios nuevoRecepcionista;
+    char opcion;
 
-    bool bandera = true;
+    do
+    {
+        printf("Introduce el Usuario (máximo 11 caracteres): ");
+        scanf("%11s", nuevoRecepcionista.Usuario);
 
-    printf("Introduce el Usuario (máximo 11 caracteres): ");
-    scanf("%11s", nuevoRecepcionista.Usuario);
+        printf("Introduce la Contraseña (máximo 33 caracteres): ");
+        scanf("%33s", nuevoRecepcionista.Contrasena);
 
-    printf("Introduce la Contraseña (máximo 33 caracteres): ");
-    scanf("%33s", nuevoRecepcionista.Contrasena);
-
-    printf("Introduce el NombreApellido (máximo 60 caracteres): ");
-    scanf("%60s", nuevoRecepcionista.ApellidoNombre);
-    while(bandera = true){
         if (esNombreUsuarioValido(nuevoRecepcionista.Usuario) && esContrasenaValida(nuevoRecepcionista.Contrasena))
-    {
-        printf("\nUsuario creado con exito.\n");
-        FILE *file = fopen("Recepcionistas.dat", "ab");
-        if (file == NULL)
         {
-            printf("No se pudo abrir el archivo.\n");
-            return;
-        }
+            printf("Introduce el NombreApellido (máximo 60 caracteres): ");
+            scanf("%60s", nuevoRecepcionista.ApellidoNombre);
+            printf("\nUsuario creado con exito.\n");
+            FILE *file = fopen("Recepcionistas.dat", "ab");
+            if (file == NULL)
+            {
+                printf("No se pudo abrir el archivo.\n");
+                return;
+            }
 
-        fwrite(&nuevoRecepcionista, sizeof(Usuarios), 1, file);
-        fclose(file);
-        bandera = false;
-    }
-    else
+            fwrite(&nuevoRecepcionista, sizeof(Usuarios), 1, file);
+            fclose(file);
+            return; // Termina la función una vez que se crea el usuario
+        }
+        else
+        {
+            printf("\nNombre de usuario o contrasena invalidos.\n");
+            printf("¿Deseas intentarlo de nuevo? (s/n): ");
+            scanf(" %c", &opcion); // El espacio antes de %c ignora los espacios en blanco
+        }
+    } while (opcion == 's' || opcion == 'S');
+}
+
+
+
+void crearUsuarioProvisorio()
+{
+
+    Usuarios usuario;
+    FILE *archivo;
+
+    // Copia los datos en la estructura de usuario
+    snprintf(usuario.Usuario, sizeof(usuario.Usuario), "sebazelarayan12");
+    snprintf(usuario.Contrasena, sizeof(usuario.Contrasena), "12345678");
+    snprintf(usuario.ApellidoNombre, sizeof(usuario.ApellidoNombre), "Zelarayan Sebastian");
+
+    // Abre el archivo para escritura
+    archivo = fopen("Recepcionistas.dat", "wb");
+    if (archivo == NULL)
     {
-        printf("\nNombre de usuario o contrasena invalidos.\n");
+        printf("No se pudo abrir el archivo para escritura\n");
     }
-    }
-    
+
+    // Escribe la estructura de usuario en el archivo
+    fwrite(&usuario, sizeof(Usuarios), 1, archivo);
+
+    // Cierra el archivo
+    fclose(archivo);
+
+    printf("Usuario guardado exitosamente\n");
 }
 
 void moduloConsultorios()
@@ -303,9 +333,11 @@ void moduloAdministracion()
         switch (opcion)
         {
         case 1:
+            // sesion_iniciada_admin = true;
             if (sesion_iniciada_admin)
             {
                 // Aqui va el codigo para registrar profesionales
+                // crearUsuarioProvisorio();
             }
             else
             {
@@ -313,8 +345,6 @@ void moduloAdministracion()
             }
             break;
         case 2:
-            // usuario creado para la ejecucion de las otras opciones --> provisorio
-            // BORRAR AL TERMINAR
             if (sesion_iniciada_admin)
             {
                 crearNuevoRecepcionista();
