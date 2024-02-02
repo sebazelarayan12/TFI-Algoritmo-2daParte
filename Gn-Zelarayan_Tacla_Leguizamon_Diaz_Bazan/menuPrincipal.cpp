@@ -3,6 +3,10 @@
 #include <cctype>
 #include <cstring>
 #include <string.h>
+<<<<<<< HEAD
+=======
+#include <stdlib.h>
+>>>>>>> 4531a87 (agregada funcion de visualizar turnos y struct prof cambiada)
 
 struct Fecha
 {
@@ -24,6 +28,11 @@ struct Profesionales
     int IdProfesional;
     int Dni;
     char Telefono[25];
+<<<<<<< HEAD
+=======
+    char Usuario[11];
+    char Contrasena[33];
+>>>>>>> 4531a87 (agregada funcion de visualizar turnos y struct prof cambiada)
 };
 
 struct Pacientes
@@ -120,6 +129,7 @@ bool esContrasenaValida(const char *contrasena)
     return tieneMayuscula && tieneMinuscula && tieneDigito;
 }
 
+<<<<<<< HEAD
 void crearNuevoRecepcionista(){
 
     Usuarios nuevoRecepcionista;
@@ -155,13 +165,209 @@ void crearNuevoRecepcionista(){
     }
     }
     
+=======
+void crearNuevoRecepcionista()
+{
+    Usuarios nuevoRecepcionista;
+    char opcion;
+
+    do
+    {
+        printf("\nIntroduce el Nuevo Usuario (minimo 6 y maximo 10 caracteres) \nDebe comenzar con una letra minuscula\nDebe tener 2 letras mayusculas\nTener maximo 3 digitos\n\n--> ");
+        scanf("%11s", nuevoRecepcionista.Usuario);
+
+        printf("\nIntroduce la Contrasena del nuevo usuario (minimo 6 y maximo 32 caracteres) \nDebera contener al menos una letra mayuscula, una letra minuscula y un numero\nNo debe tener mas de 3 caracteres numericos consecutivos\nNo debe tener 2 caracteres consecutivos que refieran a letras alfabeticamente consecutivas (ascendentemente)\n\n--> ");
+        scanf("%33s", nuevoRecepcionista.Contrasena);
+
+        if (esNombreUsuarioValido(nuevoRecepcionista.Usuario) && esContrasenaValida(nuevoRecepcionista.Contrasena))
+        {
+            printf("Introduce el NombreApellido (máximo 60 caracteres): ");
+            scanf("%60s", nuevoRecepcionista.ApellidoNombre);
+            printf("\nUsuario creado con exito.\n");
+            getch();
+            FILE *file = fopen("Recepcionistas.dat", "ab");
+            if (file == NULL)
+            {
+                printf("No se pudo abrir el archivo.\n");
+                return;
+            }
+
+            fwrite(&nuevoRecepcionista, sizeof(Usuarios), 1, file);
+            fclose(file);
+            return; // Termina la función una vez que se crea el usuario
+        }
+        else
+        {
+            printf("\nNombre de usuario o contrasena invalidos.\n");
+            printf("¿Deseas intentarlo de nuevo? (s/n): ");
+            scanf(" %c", &opcion); // El espacio antes de %c ignora los espacios en blanco
+            system("CLS");
+        }
+    } while (opcion == 's' || opcion == 'S');
+}
+
+// funcion utilizada para crear un usuario admin para corroborar funciones
+
+void crearUsuarioProvisorio()
+{
+
+    Usuarios usuario;
+    FILE *archivo;
+
+    // Copia los datos en la estructura de usuario
+    snprintf(usuario.Usuario, sizeof(usuario.Usuario), "sebazelarayan12");
+    snprintf(usuario.Contrasena, sizeof(usuario.Contrasena), "12345678");
+    snprintf(usuario.ApellidoNombre, sizeof(usuario.ApellidoNombre), "Zelarayan Sebastian");
+
+    // Abre el archivo para escritura
+    archivo = fopen("Recepcionistas.dat", "wb");
+    if (archivo == NULL)
+    {
+        printf("No se pudo abrir el archivo para escritura\n");
+    }
+
+    // Escribe la estructura de usuario en el archivo
+    fwrite(&usuario, sizeof(Usuarios), 1, archivo);
+
+    // Cierra el archivo
+    fclose(archivo);
+
+    printf("Usuario guardado exitosamente\n");
+}
+
+void profesionalProvisorio()
+{
+    struct Profesionales nuevoProfesional;
+
+    strcpy(nuevoProfesional.ApellidoNombre, "sebastian zelarayan");
+    nuevoProfesional.IdProfesional = 123;
+    nuevoProfesional.Dni = 429999;
+    strcpy(nuevoProfesional.Telefono, "123123123");
+    strcpy(nuevoProfesional.Usuario, "sebazelara");
+    strcpy(nuevoProfesional.Contrasena, "12345678");
+
+    FILE *file = fopen("Profesionales.dat", "ab");
+    if (file == NULL)
+    {
+        printf("No se pudo abrir el archivo Profesionales.dat.\n");
+        return;
+    }
+
+    fwrite(&nuevoProfesional, sizeof(Profesionales), 1, file);
+
+    fclose(file);
+
+    printf("\n\nProfesional provisorio creado");
+}
+
+int esIdProfesionalValido(int id)
+{
+    struct Profesionales profesional;
+    FILE *file = fopen("Profesionales.dat", "rb");
+    if (file == NULL)
+    {
+        printf("No se pudo abrir el archivo Profesionales.dat.\n");
+        return 0;
+    }
+
+    while (fread(&profesional, sizeof(Profesionales), 1, file))
+    {
+        if (id == profesional.IdProfesional)
+        {
+            fclose(file);
+            return 1;
+        }
+    }
+
+    fclose(file);
+    return 0;
+}
+
+void crearTurno()
+{
+    struct Turnos nuevoTurno;
+
+    printf("Introduce el ID del Profesional: ");
+    scanf("%d", &nuevoTurno.IdProfesional);
+
+    if (!esIdProfesionalValido(nuevoTurno.IdProfesional))
+    {
+        printf("El ID del Profesional no es válido.\n");
+        return;
+    }
+
+    printf("Introduce el día de la fecha: ");
+    scanf("%d", &nuevoTurno.fecha.dia);
+
+    printf("Introduce el mes de la fecha: ");
+    scanf("%d", &nuevoTurno.fecha.mes);
+
+    printf("Introduce el año de la fecha: ");
+    scanf("%d", &nuevoTurno.fecha.ano);
+
+    printf("Introduce el DNI del Paciente: ");
+    scanf("%d", &nuevoTurno.DniPaciente);
+
+    printf("Introduce el Detalle de Atención (máximo 379 caracteres): ");
+    scanf(" %[^\n]", nuevoTurno.DetalledeAtencion); // Lee hasta un salto de línea
+
+    FILE *file = fopen("Turnos.dat", "ab"); // Abre el archivo en modo de añadir en binario
+    if (file == NULL)
+    {
+        printf("No se pudo abrir el archivo.\n");
+        return;
+    }
+
+    fwrite(&nuevoTurno, sizeof(Turnos), 1, file); // Escribe el nuevo turno en el archivo
+    fclose(file);                                 // Cierra el archivo
+}
+
+void visualizarTurno(int idRegistrado)
+{
+    struct Turnos turno;
+    FILE *archivo;
+    bool turnoEncontrado = false;
+
+    // Abre el archivo para lectura
+    archivo = fopen("Turnos.dat", "rb");
+    if (archivo == NULL)
+    {
+        printf("No se pudo abrir el archivo para lectura. Asegúrate de que el archivo 'Turnos.dat' exista en el directorio correcto.\n");
+        return;
+    }
+
+    // Lee la estructura de turno del archivo
+    while (fread(&turno, sizeof(Turnos), 1, archivo))
+    {
+        if (turno.IdProfesional == idRegistrado)
+        {
+            printf("Fecha: %d/%d/%d\n", turno.fecha.dia, turno.fecha.mes, turno.fecha.ano); // Asume que Fecha es una estructura con dia, mes y anio
+            printf("DniPaciente: %d\n", turno.DniPaciente);
+            printf("DetalledeAtencion: %s\n", turno.DetalledeAtencion);
+            turnoEncontrado = true;
+            break;
+        }
+    }
+
+    if (!turnoEncontrado)
+    {
+        printf("El profesional no cuenta con turnos pendientes.\n");
+    }
+
+    // Cierra el archivo
+    fclose(archivo);
+>>>>>>> 4531a87 (agregada funcion de visualizar turnos y struct prof cambiada)
 }
 
 void moduloConsultorios()
 {
     int opcion;
     bool continuar = true;
+<<<<<<< HEAD
     bool sesion_iniciada = false;
+=======
+    bool sesion_iniciada_prof = false;
+>>>>>>> 4531a87 (agregada funcion de visualizar turnos y struct prof cambiada)
     while (continuar)
     {
         printf("\nModulo Consultorios\n");
@@ -172,6 +378,7 @@ void moduloConsultorios()
         printf("4.- Volver al menu principal\n\n");
         printf("Ingrese una opcion: ");
         scanf("%d", &opcion);
+<<<<<<< HEAD
         switch (opcion)
         {
         case 1:
@@ -188,6 +395,56 @@ void moduloConsultorios()
             if (sesion_iniciada)
             {
                 // Aqui va el codigo para mostrar la lista de espera de turnos
+=======
+        system("CLS");
+        switch (opcion)
+        {
+        case 1:
+            struct Profesionales profesional;
+            FILE *archivo;
+            char Usuario[11];
+            char Contrasena[33];
+            int idRegistrado;
+
+            printf("Ingrese el nombre de usuario: ");
+            scanf("%s", Usuario);
+            printf("Ingrese la contrasena: ");
+            scanf("%s", Contrasena);
+
+            // Abre el archivo para lectura
+            archivo = fopen("Profesionales.dat", "rb");
+            if (archivo == NULL)
+            {
+                printf("No se pudo abrir el archivo para lectura\n");
+                return;
+            }
+
+            // Lee la estructura de usuario del archivo
+            while (fread(&profesional, sizeof(Profesionales), 1, archivo))
+            {
+                if (strcmp(profesional.Usuario, Usuario) == 0 && strcmp(profesional.Contrasena, Contrasena) == 0)
+                {
+                    printf("Inicio de sesion exitoso.\n");
+                    printf("Bienvenido, %s!\n", profesional.ApellidoNombre);
+                    sesion_iniciada_prof = true;
+                    idRegistrado = profesional.IdProfesional;
+                    break;
+                }
+            }
+
+            if (!sesion_iniciada_prof)
+            {
+                printf("Nombre de usuario o contrasena incorrectos.\n");
+            }
+
+            // Cierra el archivo
+            fclose(archivo);
+            break;
+        case 2:
+            if (sesion_iniciada_prof)
+            {
+                visualizarTurno(idRegistrado);
+>>>>>>> 4531a87 (agregada funcion de visualizar turnos y struct prof cambiada)
             }
             else
             {
@@ -195,7 +452,11 @@ void moduloConsultorios()
             }
             break;
         case 3:
+<<<<<<< HEAD
             if (sesion_iniciada)
+=======
+            if (sesion_iniciada_prof)
+>>>>>>> 4531a87 (agregada funcion de visualizar turnos y struct prof cambiada)
             {
                 // Aqui va el codigo para registrar la historia clinica
             }
@@ -207,6 +468,10 @@ void moduloConsultorios()
         case 4:
             printf("\nVolviendo al menu principal...\n");
             continuar = false;
+<<<<<<< HEAD
+=======
+            sesion_iniciada_prof = false;
+>>>>>>> 4531a87 (agregada funcion de visualizar turnos y struct prof cambiada)
             break;
         default:
             printf("\nOpcion invalida. Intenta de nuevo.\n");
@@ -218,7 +483,11 @@ void moduloRecepcionista()
 {
     int opcion;
     bool continuar = true;
+<<<<<<< HEAD
     bool sesion_iniciada = false;
+=======
+    bool sesion_iniciada_recep = false;
+>>>>>>> 4531a87 (agregada funcion de visualizar turnos y struct prof cambiada)
     while (continuar)
     {
         printf("\nModulo del recepcionista\n");
@@ -230,6 +499,7 @@ void moduloRecepcionista()
         printf("5.- Volver al menu principal\n\n");
         printf("Ingrese una opcion: ");
         scanf("%d", &opcion);
+<<<<<<< HEAD
         switch (opcion)
         {
         case 1:
@@ -244,6 +514,48 @@ void moduloRecepcionista()
             break;
         case 2:
             if (sesion_iniciada)
+=======
+        system("CLS");
+        switch (opcion)
+        {
+        case 1:
+            struct Usuarios usuario;
+            FILE *archivo;
+            char Usuario[11];
+            char Contrasena[32];
+            printf("Ingrese el nombre de usuario: ");
+            scanf("%s", Usuario);
+            printf("Ingrese la contrasena: ");
+            scanf("%s", Contrasena);
+
+            // Abre el archivo para lectura
+            archivo = fopen("Recepcionistas.dat", "rb");
+            if (archivo == NULL)
+            {
+                printf("No se pudo abrir el archivo para lectura\n");
+            }
+
+            // Lee la estructura de usuario del archivo
+            while (fread(&usuario, sizeof(Usuarios), 1, archivo))
+            {
+                if (strcmp(usuario.Usuario, Usuario) == 0 && strcmp(usuario.Contrasena, Contrasena) == 0)
+                {
+                    printf("Inicio de sesion exitoso.\n");
+                    fclose(archivo);
+                    sesion_iniciada_recep = true;
+                }
+                else
+                {
+                    printf("Nombre de usuario o contrasena incorrectos.\n");
+                }
+            }
+
+            // Cierra el archivo
+            fclose(archivo);
+            break;
+        case 2:
+            if (sesion_iniciada_recep)
+>>>>>>> 4531a87 (agregada funcion de visualizar turnos y struct prof cambiada)
             {
                 // Aqui va el codigo para registrar pacientes
             }
@@ -253,9 +565,15 @@ void moduloRecepcionista()
             }
             break;
         case 3:
+<<<<<<< HEAD
             if (sesion_iniciada)
             {
                 // Aqui va el codigo para registrar turno
+=======
+            if (sesion_iniciada_recep)
+            {
+                crearTurno();
+>>>>>>> 4531a87 (agregada funcion de visualizar turnos y struct prof cambiada)
             }
             else
             {
@@ -263,7 +581,11 @@ void moduloRecepcionista()
             }
             break;
         case 4:
+<<<<<<< HEAD
             if (sesion_iniciada)
+=======
+            if (sesion_iniciada_recep)
+>>>>>>> 4531a87 (agregada funcion de visualizar turnos y struct prof cambiada)
             {
                 // Aqui va el codigo para mostrar el listado de atenciones
             }
@@ -287,12 +609,17 @@ void moduloAdministracion()
     int opcion;
     bool continuar = true;
     // bool sesion_iniciada = false;
+<<<<<<< HEAD
     bool sesion_iniciada_admin = false;
+=======
+    bool sesion_iniciada_recep = false;
+>>>>>>> 4531a87 (agregada funcion de visualizar turnos y struct prof cambiada)
     while (continuar)
     {
         printf("\nModulo Administracion\n");
         printf("=========================\n");
         printf("1.- Registrar Profesionales\n");
+<<<<<<< HEAD
         printf("2.- Registrar Usuario Recepcionista\n");
         printf("3.- Atenciones por Profesional\n");
         printf("4.- Ranking de Profesionales por Atenciones\n");
@@ -306,6 +633,25 @@ void moduloAdministracion()
             if (sesion_iniciada_admin)
             {
                 // Aqui va el codigo para registrar profesionales
+=======
+        printf("2.- Registrar nuevo Usuario Recepcionista\n");
+        printf("3.- Atenciones por Profesional\n");
+        printf("4.- Ranking de Profesionales por Atenciones\n");
+        printf("5.- Iniciar sesion como recepcionista\n\n");
+        printf("6.- Volver al menu principal\n\n");
+        printf("Ingrese una opcion: ");
+        scanf("%d", &opcion);
+        system("CLS");
+        switch (opcion)
+        {
+        case 1:
+            // sesion_iniciada_recep = true;
+            if (sesion_iniciada_recep)
+            {
+                // Aqui va el codigo para registrar profesionales
+                // crearUsuarioProvisorio();
+                profesionalProvisorio();
+>>>>>>> 4531a87 (agregada funcion de visualizar turnos y struct prof cambiada)
             }
             else
             {
@@ -313,9 +659,13 @@ void moduloAdministracion()
             }
             break;
         case 2:
+<<<<<<< HEAD
             // usuario creado para la ejecucion de las otras opciones --> provisorio
             // BORRAR AL TERMINAR
             if (sesion_iniciada_admin)
+=======
+            if (sesion_iniciada_recep)
+>>>>>>> 4531a87 (agregada funcion de visualizar turnos y struct prof cambiada)
             {
                 crearNuevoRecepcionista();
             }
@@ -325,7 +675,11 @@ void moduloAdministracion()
             }
             break;
         case 3:
+<<<<<<< HEAD
             if (sesion_iniciada_admin)
+=======
+            if (sesion_iniciada_recep)
+>>>>>>> 4531a87 (agregada funcion de visualizar turnos y struct prof cambiada)
             {
                 // Aqui va el codigo para mostrar las atenciones por profesional
             }
@@ -335,7 +689,11 @@ void moduloAdministracion()
             }
             break;
         case 4:
+<<<<<<< HEAD
             if (sesion_iniciada_admin)
+=======
+            if (sesion_iniciada_recep)
+>>>>>>> 4531a87 (agregada funcion de visualizar turnos y struct prof cambiada)
             {
                 // Aqui va el codigo para mostrar el ranking de profesionales por atenciones
             }
@@ -369,7 +727,11 @@ void moduloAdministracion()
                 {
                     printf("Inicio de sesion exitoso.\n");
                     fclose(archivo);
+<<<<<<< HEAD
                     sesion_iniciada_admin = true;
+=======
+                    sesion_iniciada_recep = true;
+>>>>>>> 4531a87 (agregada funcion de visualizar turnos y struct prof cambiada)
                 }
                 else
                 {
@@ -384,6 +746,10 @@ void moduloAdministracion()
         case 6:
             printf("\nVolviendo al menu principal...\n");
             continuar = false;
+<<<<<<< HEAD
+=======
+            sesion_iniciada_recep = false;
+>>>>>>> 4531a87 (agregada funcion de visualizar turnos y struct prof cambiada)
             break;
         default:
             printf("\nOpcion invalida. Intenta de nuevo.\n");
@@ -405,6 +771,10 @@ int main()
         printf("4.- Cerrar la aplicacion.\n\n");
         printf("Ingrese una opcion: ");
         scanf("%d", &opcion);
+<<<<<<< HEAD
+=======
+        system("CLS");
+>>>>>>> 4531a87 (agregada funcion de visualizar turnos y struct prof cambiada)
 
         switch (opcion)
         {
