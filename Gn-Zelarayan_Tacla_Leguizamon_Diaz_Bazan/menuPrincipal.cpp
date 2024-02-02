@@ -192,129 +192,6 @@ void crearUsuarioProvisorio()
     printf("Usuario guardado exitosamente\n");
 }
 
-void profesionalProvisorio()
-{
-    struct Profesionales nuevoProfesional;
-
-    strcpy(nuevoProfesional.ApellidoNombre, "sebastian zelarayan");
-    nuevoProfesional.IdProfesional = 123;
-    nuevoProfesional.Dni = 429999;
-    strcpy(nuevoProfesional.Telefono, "123123123");
-    strcpy(nuevoProfesional.Usuario, "sebazelara");
-    strcpy(nuevoProfesional.Contrasena, "12345678");
-
-    FILE *file = fopen("Profesionales.dat", "ab");
-    if (file == NULL)
-    {
-        printf("No se pudo abrir el archivo Profesionales.dat.\n");
-        return;
-    }
-
-    fwrite(&nuevoProfesional, sizeof(Profesionales), 1, file);
-
-    fclose(file);
-
-    printf("\n\nProfesional provisorio creado");
-}
-
-int esIdProfesionalValido(int id)
-{
-    struct Profesionales profesional;
-    FILE *file = fopen("Profesionales.dat", "rb");
-    if (file == NULL)
-    {
-        printf("No se pudo abrir el archivo Profesionales.dat.\n");
-        return 0;
-    }
-
-    while (fread(&profesional, sizeof(Profesionales), 1, file))
-    {
-        if (id == profesional.IdProfesional)
-        {
-            fclose(file);
-            return 1;
-        }
-    }
-
-    fclose(file);
-    return 0;
-}
-
-void crearTurno()
-{
-    struct Turnos nuevoTurno;
-
-    printf("Introduce el ID del Profesional: ");
-    scanf("%d", &nuevoTurno.IdProfesional);
-
-    if (!esIdProfesionalValido(nuevoTurno.IdProfesional))
-    {
-        printf("El ID del Profesional no es válido.\n");
-        return;
-    }
-
-    printf("Introduce el día de la fecha: ");
-    scanf("%d", &nuevoTurno.fecha.dia);
-
-    printf("Introduce el mes de la fecha: ");
-    scanf("%d", &nuevoTurno.fecha.mes);
-
-    printf("Introduce el año de la fecha: ");
-    scanf("%d", &nuevoTurno.fecha.ano);
-
-    printf("Introduce el DNI del Paciente: ");
-    scanf("%d", &nuevoTurno.DniPaciente);
-
-    printf("Introduce el Detalle de Atención (máximo 379 caracteres): ");
-    scanf(" %[^\n]", nuevoTurno.DetalledeAtencion); // Lee hasta un salto de línea
-
-    FILE *file = fopen("Turnos.dat", "ab"); // Abre el archivo en modo de añadir en binario
-    if (file == NULL)
-    {
-        printf("No se pudo abrir el archivo.\n");
-        return;
-    }
-
-    fwrite(&nuevoTurno, sizeof(Turnos), 1, file); // Escribe el nuevo turno en el archivo
-    fclose(file);                                 // Cierra el archivo
-}
-
-void visualizarTurno(int idRegistrado)
-{
-    struct Turnos turno;
-    FILE *archivo;
-    bool turnoEncontrado = false;
-
-    // Abre el archivo para lectura
-    archivo = fopen("Turnos.dat", "rb");
-    if (archivo == NULL)
-    {
-        printf("No se pudo abrir el archivo para lectura. Asegúrate de que el archivo 'Turnos.dat' exista en el directorio correcto.\n");
-        return;
-    }
-
-    // Lee la estructura de turno del archivo
-    while (fread(&turno, sizeof(Turnos), 1, archivo))
-    {
-        if (turno.IdProfesional == idRegistrado)
-        {
-            printf("Fecha: %d/%d/%d\n", turno.fecha.dia, turno.fecha.mes, turno.fecha.ano); // Asume que Fecha es una estructura con dia, mes y anio
-            printf("DniPaciente: %d\n", turno.DniPaciente);
-            printf("DetalledeAtencion: %s\n", turno.DetalledeAtencion);
-            turnoEncontrado = true;
-            break;
-        }
-    }
-
-    if (!turnoEncontrado)
-    {
-        printf("El profesional no cuenta con turnos pendientes.\n");
-    }
-
-    // Cierra el archivo
-    fclose(archivo);
-}
-
 void moduloConsultorios()
 {
     int opcion;
@@ -330,7 +207,7 @@ void moduloConsultorios()
         printf("4.- Volver al menu principal\n\n");
         printf("Ingrese una opcion: ");
         scanf("%d", &opcion);
-        system("CLS");
+        system("CLS"); 
         switch (opcion)
         {
         case 1:
@@ -421,7 +298,7 @@ void moduloRecepcionista()
         printf("5.- Volver al menu principal\n\n");
         printf("Ingrese una opcion: ");
         scanf("%d", &opcion);
-        system("CLS");
+        system("CLS"); 
         switch (opcion)
         {
         case 1:
@@ -517,6 +394,7 @@ void moduloAdministracion()
         printf("6.- Volver al menu principal\n\n");
         printf("Ingrese una opcion: ");
         scanf("%d", &opcion);
+<<<<<<< HEAD
         system("CLS");
         switch (opcion)
         {
@@ -527,6 +405,17 @@ void moduloAdministracion()
                 // Aqui va el codigo para registrar profesionales
                 // crearUsuarioProvisorio();
                 profesionalProvisorio();
+=======
+        system("CLS"); 
+        switch (opcion)
+        {
+        case 1:
+            // sesion_iniciada_admin = true;
+            if (sesion_iniciada_admin)
+            {
+                // Aqui va el codigo para registrar profesionales
+                // crearUsuarioProvisorio();
+>>>>>>> b836a2ab9482d789b15424cd9bef0fe1f3735820
             }
             else
             {
@@ -534,7 +423,11 @@ void moduloAdministracion()
             }
             break;
         case 2:
+<<<<<<< HEAD
             if (sesion_iniciada_recep)
+=======
+            if (sesion_iniciada_admin)
+>>>>>>> b836a2ab9482d789b15424cd9bef0fe1f3735820
             {
                 crearNuevoRecepcionista();
             }
