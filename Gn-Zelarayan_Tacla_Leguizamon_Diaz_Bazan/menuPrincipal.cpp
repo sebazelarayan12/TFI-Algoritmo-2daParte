@@ -163,8 +163,6 @@ void crearNuevoRecepcionista()
     } while (opcion == 's' || opcion == 'S');
 }
 
-// funcion utilizada para crear un usuario admin para corroborar funciones
-
 void crearUsuarioProvisorio()
 {
 
@@ -253,19 +251,19 @@ void crearTurno()
         return;
     }
 
-    printf("Introduce el dÃ­a de la fecha: ");
+    printf("Introduce el di­a de la fecha: ");
     scanf("%d", &nuevoTurno.fecha.dia);
 
     printf("Introduce el mes de la fecha: ");
     scanf("%d", &nuevoTurno.fecha.mes);
 
-    printf("Introduce el aÃ±o de la fecha: ");
+    printf("Introduce el año de la fecha: ");
     scanf("%d", &nuevoTurno.fecha.ano);
 
     printf("Introduce el DNI del Paciente: ");
     scanf("%d", &nuevoTurno.DniPaciente);
 
-    printf("Introduce el Detalle de AtenciÃ³n (mÃ¡ximo 379 caracteres): ");
+    printf("Introduce el Detalle de Atencion (maximo 379 caracteres): ");
     scanf(" %[^\n]", nuevoTurno.DetalledeAtencion); // Lee hasta un salto de lÃ­nea
 
     FILE *file = fopen("Turnos.dat", "ab"); // Abre el archivo en modo de aÃ±adir en binario
@@ -289,7 +287,7 @@ void visualizarTurno(int idRegistrado)
     archivo = fopen("Turnos.dat", "rb");
     if (archivo == NULL)
     {
-        printf("No se pudo abrir el archivo para lectura. AsegÃºrate de que el archivo 'Turnos.dat' exista en el directorio correcto.\n");
+        printf("No se pudo abrir el archivo para lectura. Asegúrate de que el archivo 'Turnos.dat' exista en el directorio correcto.\n");
         return;
     }
 
@@ -298,11 +296,11 @@ void visualizarTurno(int idRegistrado)
     {
         if (turno.IdProfesional == idRegistrado)
         {
+            printf("\n================================================================\n");
             printf("Fecha: %d/%d/%d\n", turno.fecha.dia, turno.fecha.mes, turno.fecha.ano); // Asume que Fecha es una estructura con dia, mes y anio
             printf("DniPaciente: %d\n", turno.DniPaciente);
             printf("DetalledeAtencion: %s\n", turno.DetalledeAtencion);
             turnoEncontrado = true;
-            break;
         }
     }
 
@@ -331,7 +329,7 @@ void moduloConsultorios()
         printf("Ingrese una opcion: ");
         scanf("%d", &opcion);
         system("CLS");
-        
+
         switch (opcion)
         {
         case 1:
