@@ -215,6 +215,33 @@ void profesionalProvisorio()
     printf("\n\nProfesional provisorio creado");
 }
 
+void pacienteProvisorio()
+{
+    struct Pacientes nuevoPaciente;
+
+    strcpy(nuevoPaciente.ApellidoNombre, "zelarayan sebastian");
+    strcpy(nuevoPaciente.Domicilio, "san miguel");
+    nuevoPaciente.DniPaciente = 4238641;
+    strcpy(nuevoPaciente.Localidad, "Tucuman");
+    nuevoPaciente.FechadeNacimiento.dia = 23;
+    nuevoPaciente.FechadeNacimiento.mes = 11;
+    nuevoPaciente.FechadeNacimiento.ano = 2000;
+    strcpy(nuevoPaciente.Telefono, "3814400000");
+
+    FILE *file = fopen("Pacientes.dat", "ab");
+    if (file == NULL)
+    {
+        printf("No se pudo abrir el archivo para escritura. Asegúrate de que el archivo 'Pacientes.dat' exista en el directorio correcto.\n");
+        return;
+    }
+
+    fwrite(&nuevoPaciente, sizeof(Pacientes), 1, file);
+
+    fclose(file);
+
+    printf("\n\nPaciente provisorio creado");
+}
+
 int esIdProfesionalValido(int id)
 {
     struct Profesionales profesional;
@@ -461,7 +488,7 @@ void moduloRecepcionista()
         case 2:
             if (sesion_iniciada_recep)
             {
-                // Aqui va el codigo para registrar pacientes
+                pacienteProvisorio();
             }
             else
             {
