@@ -45,6 +45,7 @@ struct Turnos
     Fecha fecha;
     int DniPaciente;
     char DetalledeAtencion[380];
+    bool Pendiente;
 };
 
 bool esNombreUsuarioValido(const char *nombreUsuario)
@@ -126,23 +127,41 @@ bool esContrasenaValida(const char *contrasena)
 void crearNuevoRecepcionista()
 {
     Usuarios nuevoRecepcionista;
+    Usuarios usuarioExistente;
     char opcion;
+    FILE *file;
+    bool usuarioCreado = false;
 
     do
     {
         printf("\nIntroduce el Nuevo Usuario (minimo 6 y maximo 10 caracteres) \nDebe comenzar con una letra minuscula\nDebe tener 2 letras mayusculas\nTener maximo 3 digitos\n\n--> ");
         scanf("%11s", nuevoRecepcionista.Usuario);
 
+        file = fopen("Recepcionistas.dat", "rb");
+        if (file != NULL)
+        {
+            while (fread(&usuarioExistente, sizeof(Usuarios), 1, file))
+            {
+                if (strcmp(usuarioExistente.Usuario, nuevoRecepcionista.Usuario) == 0)
+                {
+                    printf("El usuario ya existe.\n");
+                    fclose(file);
+                    return;
+                }
+            }
+            fclose(file);
+        }
+
         printf("\nIntroduce la Contrasena del nuevo usuario (minimo 6 y maximo 32 caracteres) \nDebera contener al menos una letra mayuscula, una letra minuscula y un numero\nNo debe tener mas de 3 caracteres numericos consecutivos\nNo debe tener 2 caracteres consecutivos que refieran a letras alfabeticamente consecutivas (ascendentemente)\n\n--> ");
         scanf("%33s", nuevoRecepcionista.Contrasena);
 
         if (esNombreUsuarioValido(nuevoRecepcionista.Usuario) && esContrasenaValida(nuevoRecepcionista.Contrasena))
         {
-            printf("Introduce el NombreApellido (máximo 60 caracteres): ");
+            printf("Introduce el Nombre y Apellido (maximo 60 caracteres): ");
             scanf("%60s", nuevoRecepcionista.ApellidoNombre);
             printf("\nUsuario creado con exito.\n");
             getch();
-            FILE *file = fopen("Recepcionistas.dat", "ab");
+            file = fopen("Recepcionistas.dat", "ab");
             if (file == NULL)
             {
                 printf("No se pudo abrir el archivo.\n");
@@ -151,19 +170,18 @@ void crearNuevoRecepcionista()
 
             fwrite(&nuevoRecepcionista, sizeof(Usuarios), 1, file);
             fclose(file);
-            return; // Termina la función una vez que se crea el usuario
+            usuarioCreado = true; // Indica que se ha creado un nuevo usuario
         }
         else
         {
             printf("\nNombre de usuario o contrasena invalidos.\n");
             printf("¿Deseas intentarlo de nuevo? (s/n): ");
             scanf(" %c", &opcion); // El espacio antes de %c ignora los espacios en blanco
+            getchar();             // consume el carácter de nueva línea
             system("CLS");
         }
-    } while (opcion == 's' || opcion == 'S');
+    } while ((opcion == 's' || opcion == 'S') && !usuarioCreado); // Solo repite si el usuario quiere intentarlo de nuevo y no se ha creado un nuevo usuario
 }
-
-// funcion utilizada para crear un usuario admin para corroborar funciones
 
 void crearUsuarioProvisorio()
 {
@@ -192,6 +210,211 @@ void crearUsuarioProvisorio()
     printf("Usuario guardado exitosamente\n");
 }
 
+void profesionalProvisorio()
+{
+    struct Profesionales nuevoProfesional;
+
+    strcpy(nuevoProfesional.ApellidoNombre, "sebastian zelarayan");
+    nuevoProfesional.IdProfesional = 123;
+    nuevoProfesional.Dni = 429999;
+    strcpy(nuevoProfesional.Telefono, "123123123");
+    strcpy(nuevoProfesional.Usuario, "sebazelara");
+    strcpy(nuevoProfesional.Contrasena, "12345678");
+
+    FILE *file = fopen("Profesionales.dat", "ab");
+    if (file == NULL)
+    {
+        printf("No se pudo abrir el archivo Profesionales.dat.\n");
+        return;
+    }
+
+    fwrite(&nuevoProfesional, sizeof(Profesionales), 1, file);
+
+    fclose(file);
+
+    printf("\n\nProfesional provisorio creado");
+}
+
+void pacienteProvisorio()
+{
+    struct Pacientes nuevoPaciente;
+
+    strcpy(nuevoPaciente.ApellidoNombre, "zelarayan sebastian");
+    strcpy(nuevoPaciente.Domicilio, "san miguel");
+    nuevoPaciente.DniPaciente = 4238641;
+    strcpy(nuevoPaciente.Localidad, "Tucuman");
+    nuevoPaciente.FechadeNacimiento.dia = 23;
+    nuevoPaciente.FechadeNacimiento.mes = 11;
+    nuevoPaciente.FechadeNacimiento.ano = 2000;
+    strcpy(nuevoPaciente.Telefono, "3814400000");
+
+    FILE *file = fopen("Pacientes.dat", "ab");
+    if (file == NULL)
+    {
+        printf("No se pudo abrir el archivo para escritura. Asegúrate de que el archivo 'Pacientes.dat' exista en el directorio correcto.\n");
+        return;
+    }
+
+    fwrite(&nuevoPaciente, sizeof(Pacientes), 1, file);
+
+    fclose(file);
+
+    printf("\n\nPaciente provisorio creado");
+}
+
+int esIdProfesionalValido(int id)
+{
+    struct Profesionales profesional;
+    FILE *file = fopen("Profesionales.dat", "rb");
+    if (file == NULL)
+    {
+        printf("No se pudo abrir el archivo Profesionales.dat.\n");
+        return 0;
+    }
+
+    while (fread(&profesional, sizeof(Profesionales), 1, file))
+    {
+        if (id == profesional.IdProfesional)
+        {
+            fclose(file);
+            return 1;
+        }
+    }
+
+    fclose(file);
+    return 0;
+}
+
+void crearTurno()
+{
+    struct Turnos nuevoTurno;
+
+    printf("Introduce el ID del Profesional: ");
+    scanf("%d", &nuevoTurno.IdProfesional);
+
+    if (!esIdProfesionalValido(nuevoTurno.IdProfesional))
+    {
+        printf("El ID del Profesional no es valido.\n");
+        return;
+    }
+
+    printf("Introduce el dia de la fecha: ");
+    scanf("%d", &nuevoTurno.fecha.dia);
+
+    printf("Introduce el mes de la fecha: ");
+    scanf("%d", &nuevoTurno.fecha.mes);
+
+    printf("Introduce el ano de la fecha: ");
+    scanf("%d", &nuevoTurno.fecha.ano);
+
+    printf("Introduce el DNI del Paciente: ");
+    scanf("%d", &nuevoTurno.DniPaciente);
+
+    strcpy(nuevoTurno.DetalledeAtencion, "turno pendiente");
+
+    // Asigna true a Pendiente
+    nuevoTurno.Pendiente = true;
+
+    FILE *file = fopen("Turnos.dat", "ab");
+    if (file == NULL)
+    {
+        printf("No se pudo abrir el archivo.\n");
+        return;
+    }
+
+    fwrite(&nuevoTurno, sizeof(Turnos), 1, file);
+    fclose(file);
+}
+
+void visualizarTurno(int idRegistrado)
+{
+    struct Turnos turno;
+    FILE *archivo;
+    bool turnoEncontrado = false;
+
+    // Abre el archivo para lectura
+    archivo = fopen("Turnos.dat", "rb");
+    if (archivo == NULL)
+    {
+        printf("No se pudo abrir el archivo para lectura. Asegurate de que el archivo 'Turnos.dat' exista en el directorio correcto.\n");
+        return;
+    }
+
+    // Lee la estructura de turno del archivo
+    while (fread(&turno, sizeof(Turnos), 1, archivo))
+    {
+        if (turno.IdProfesional == idRegistrado && turno.Pendiente)
+        {
+            printf("\n================================================================\n");
+            printf("Fecha: %d/%d/%d\n", turno.fecha.dia, turno.fecha.mes, turno.fecha.ano); // Asume que Fecha es una estructura con dia, mes y ano
+            printf("DniPaciente: %d\n", turno.DniPaciente);
+            printf("DetalledeAtencion: %s\n", turno.DetalledeAtencion);
+            turnoEncontrado = true;
+        }
+    }
+
+    if (!turnoEncontrado)
+    {
+        printf("El profesional no cuenta con turnos pendientes.\n");
+    }
+
+    // Cierra el archivo
+    fclose(archivo);
+}
+
+void registrarHistoriaClinica()
+{
+    struct Turnos turno;
+    FILE *archivo;
+    int dniIngresado;
+    char nuevoDetalle[380];
+    bool turnoEncontrado = false;
+
+    printf("Ingrese el DNI del paciente: ");
+    scanf("%d", &dniIngresado);
+
+    // Abre el archivo para lectura y escritura
+    archivo = fopen("Turnos.dat", "r+b");
+    if (archivo == NULL)
+    {
+        printf("No se pudo abrir el archivo para lectura y escritura. Asegurate de que el archivo 'Turnos.dat' exista en el directorio correcto.\n");
+        return;
+    }
+
+    // Lee la estructura de turno del archivo
+    while (fread(&turno, sizeof(Turnos), 1, archivo))
+    {
+        if (turno.DniPaciente == dniIngresado)
+        {
+            printf("Ingrese el nuevo Detalle de Atencion (maximo 379 caracteres): ");
+            scanf(" %[^\n]", nuevoDetalle); // Lee hasta un salto de linea
+
+            // Copia el nuevo detalle en el registro de turno
+            strcpy(turno.DetalledeAtencion, nuevoDetalle);
+
+            // Cambia el estado de Pendiente a false
+            turno.Pendiente = false;
+
+            // Mueve el puntero de archivo al inicio del registro de turno
+            fseek(archivo, -sizeof(Turnos), SEEK_CUR);
+
+            // Escribe el registro de turno actualizado en el archivo
+            fwrite(&turno, sizeof(Turnos), 1, archivo);
+
+            turnoEncontrado = true;
+            break;
+        }
+    }
+
+    if (!turnoEncontrado)
+    {
+        printf("No se encontro un turno para el DNI del paciente ingresado.\n");
+    }
+
+    // Cierra el archivo
+    fclose(archivo);
+}
+
 void moduloConsultorios()
 {
     int opcion;
@@ -207,7 +430,8 @@ void moduloConsultorios()
         printf("4.- Volver al menu principal\n\n");
         printf("Ingrese una opcion: ");
         scanf("%d", &opcion);
-        system("CLS"); 
+        system("CLS");
+
         switch (opcion)
         {
         case 1:
@@ -264,7 +488,7 @@ void moduloConsultorios()
         case 3:
             if (sesion_iniciada_prof)
             {
-                // Aqui va el codigo para registrar la historia clinica
+                registrarHistoriaClinica();
             }
             else
             {
@@ -298,7 +522,7 @@ void moduloRecepcionista()
         printf("5.- Volver al menu principal\n\n");
         printf("Ingrese una opcion: ");
         scanf("%d", &opcion);
-        system("CLS"); 
+        system("CLS");
         switch (opcion)
         {
         case 1:
@@ -310,6 +534,7 @@ void moduloRecepcionista()
             scanf("%s", Usuario);
             printf("Ingrese la contrasena: ");
             scanf("%s", Contrasena);
+            system("CLS");
 
             // Abre el archivo para lectura
             archivo = fopen("Recepcionistas.dat", "rb");
@@ -323,7 +548,7 @@ void moduloRecepcionista()
             {
                 if (strcmp(usuario.Usuario, Usuario) == 0 && strcmp(usuario.Contrasena, Contrasena) == 0)
                 {
-                    printf("Inicio de sesion exitoso.\n");
+                    printf("\nInicio de sesion exitoso.\n");
                     fclose(archivo);
                     sesion_iniciada_recep = true;
                 }
@@ -339,7 +564,7 @@ void moduloRecepcionista()
         case 2:
             if (sesion_iniciada_recep)
             {
-                // Aqui va el codigo para registrar pacientes
+                pacienteProvisorio();
             }
             else
             {
@@ -376,6 +601,8 @@ void moduloRecepcionista()
     }
 }
 
+//===================================================================
+
 void moduloAdministracion()
 {
     int opcion;
@@ -394,7 +621,6 @@ void moduloAdministracion()
         printf("6.- Volver al menu principal\n\n");
         printf("Ingrese una opcion: ");
         scanf("%d", &opcion);
-<<<<<<< HEAD
         system("CLS");
         switch (opcion)
         {
@@ -404,18 +630,7 @@ void moduloAdministracion()
             {
                 // Aqui va el codigo para registrar profesionales
                 // crearUsuarioProvisorio();
-                profesionalProvisorio();
-=======
-        system("CLS"); 
-        switch (opcion)
-        {
-        case 1:
-            // sesion_iniciada_admin = true;
-            if (sesion_iniciada_admin)
-            {
-                // Aqui va el codigo para registrar profesionales
-                // crearUsuarioProvisorio();
->>>>>>> b836a2ab9482d789b15424cd9bef0fe1f3735820
+                // profesionalProvisorio();
             }
             else
             {
@@ -423,11 +638,7 @@ void moduloAdministracion()
             }
             break;
         case 2:
-<<<<<<< HEAD
             if (sesion_iniciada_recep)
-=======
-            if (sesion_iniciada_admin)
->>>>>>> b836a2ab9482d789b15424cd9bef0fe1f3735820
             {
                 crearNuevoRecepcionista();
             }
