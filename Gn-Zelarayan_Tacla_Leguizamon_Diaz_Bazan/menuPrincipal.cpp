@@ -336,6 +336,7 @@ int esIdProfesionalValido(int id)
 void crearTurno()
 {
     struct Turnos nuevoTurno;
+    FILE *file;
 
     printf("Introduce el ID del Profesional: ");
     scanf("%d", &nuevoTurno.IdProfesional);
@@ -356,14 +357,13 @@ void crearTurno()
     scanf("%d", &nuevoTurno.fecha.ano);
 
     printf("Introduce el DNI del Paciente: ");
-    scanf("%d", &nuevoTurno.DniPaciente);
-
-    strcpy(nuevoTurno.DetalledeAtencion, "turno pendiente");
-
     // Asigna true a Pendiente
     nuevoTurno.Pendiente = true;
 
-    FILE *file = fopen("Turnos.dat", "ab");
+    printf("Introduce el Detalle de Atencion (maximo 379 caracteres): ");
+    scanf(" %[^\n]", nuevoTurno.DetalledeAtencion); // Lee hasta un salto de línea
+
+    file = fopen("Turnos.dat", "ab"); // Abre el archivo en modo de añadir en binario
     if (file == NULL)
     {
         printf("No se pudo abrir el archivo.\n");
@@ -373,6 +373,7 @@ void crearTurno()
     fwrite(&nuevoTurno, sizeof(Turnos), 1, file);
     fclose(file);
 }
+
 
 void visualizarTurno(int idRegistrado)
 {
@@ -679,7 +680,7 @@ void moduloAdministracion()
             {
                 // Aqui va el codigo para registrar profesionales
                 // crearUsuarioProvisorio();
-                profesionalProvisorio();
+                // profesionalProvisorio();
             }
             else
             {
