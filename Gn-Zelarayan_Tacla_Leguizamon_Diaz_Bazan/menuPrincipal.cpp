@@ -131,19 +131,19 @@ void registrarPacientes()
 
     printf("\nIntroduce el Apellido y Nombre: ");
     fgets(nuevoPaciente.ApellidoNombre, 60, stdin);
-    nuevoPaciente.ApellidoNombre[strcspn(nuevoPaciente.ApellidoNombre, "\n")] = 0;  // Eliminar el salto de línea al final
+    nuevoPaciente.ApellidoNombre[strcspn(nuevoPaciente.ApellidoNombre, "\n")] = 0; // Eliminar el salto de línea al final
 
     printf("\nIntroduce el Domicilio: ");
     fgets(nuevoPaciente.Domicilio, 60, stdin);
-    nuevoPaciente.Domicilio[strcspn(nuevoPaciente.Domicilio, "\n")] = 0;  // Eliminar el salto de línea al final
+    nuevoPaciente.Domicilio[strcspn(nuevoPaciente.Domicilio, "\n")] = 0; // Eliminar el salto de línea al final
 
     printf("\nIntroduce el DNI: ");
     scanf("%d", &nuevoPaciente.DniPaciente);
-    getchar();  // Consumir el carácter de nueva línea
+    getchar(); // Consumir el carácter de nueva línea
 
     printf("\nIntroduce la Localidad: ");
     fgets(nuevoPaciente.Localidad, 60, stdin);
-    nuevoPaciente.Localidad[strcspn(nuevoPaciente.Localidad, "\n")] = 0;  // Eliminar el salto de línea al final
+    nuevoPaciente.Localidad[strcspn(nuevoPaciente.Localidad, "\n")] = 0; // Eliminar el salto de línea al final
 
     printf("\nIntroduce la Fecha de nacimiento: ");
     printf("\nDia: ");
@@ -152,11 +152,11 @@ void registrarPacientes()
     scanf("%d", &nuevoPaciente.FechadeNacimiento.mes);
     printf("\nAnio: ");
     scanf("%d", &nuevoPaciente.FechadeNacimiento.ano);
-    getchar();  // Consumir el carácter de nueva línea
+    getchar(); // Consumir el carácter de nueva línea
 
     printf("\nIntroduce el Telefono: ");
     fgets(nuevoPaciente.Telefono, 25, stdin);
-    nuevoPaciente.Telefono[strcspn(nuevoPaciente.Telefono, "\n")] = 0;  // Eliminar el salto de línea al final
+    nuevoPaciente.Telefono[strcspn(nuevoPaciente.Telefono, "\n")] = 0; // Eliminar el salto de línea al final
 
     file = fopen("Pacientes.dat", "ab");
     if (file == NULL)
@@ -170,7 +170,6 @@ void registrarPacientes()
 
     printf("\nPaciente creado con exito.\n");
 }
-
 
 void crearNuevoRecepcionista()
 {
@@ -229,6 +228,132 @@ void crearNuevoRecepcionista()
             system("CLS");
         }
     } while ((opcion == 's' || opcion == 'S') && !usuarioCreado); // Solo repite si el usuario quiere intentarlo de nuevo y no se ha creado un nuevo usuario
+}
+
+void listarAtenciones()
+{
+    int opcion;
+    FILE *fileTurnos;
+    FILE *fileProfesionales;
+    struct Turnos turno;
+    struct Profesionales profesional;
+    struct Fecha fechaIngresada;
+    int idProfesionalIngresado;
+
+    printf("1. Filtrar por fecha\n");
+    printf("2. Filtrar por profesional\n");
+    printf("3. Mostrar todas las atenciones\n");
+    printf("Seleccione una opcion: ");
+    scanf("%d", &opcion);
+    system("CLS");
+
+    switch (opcion)
+    {
+    case 1:
+        printf("\nIntroduce la fecha que deseas buscar: ");
+        printf("\nDia: ");
+        scanf("%d", &fechaIngresada.dia);
+        printf("\nMes: ");
+        scanf("%d", &fechaIngresada.mes);
+        printf("\nAnio: ");
+        scanf("%d", &fechaIngresada.ano);
+        getchar(); // Consumir el carácter de nueva línea
+
+        fileTurnos = fopen("Turnos.dat", "rb");
+        if (fileTurnos == NULL)
+        {
+            printf("No se pudo abrir el archivo Turnos.dat.\n");
+            return;
+        }
+
+        while (fread(&turno, sizeof(Turnos), 1, fileTurnos) == 1)
+        {
+            if (turno.fecha.dia == fechaIngresada.dia && turno.fecha.mes == fechaIngresada.mes && turno.fecha.ano == fechaIngresada.ano)
+            {
+                printf("\n\nID del Profesional: %d\n", turno.IdProfesional);
+                printf("Fecha: %d/%d/%d\n", turno.fecha.dia, turno.fecha.mes, turno.fecha.ano);
+                printf("DNI del Paciente: %d\n", turno.DniPaciente);
+                printf("Detalle de Atencion: %s\n", turno.DetalledeAtencion);
+                printf("Pendiente: %s\n", turno.Pendiente ? "Si" : "No");
+                printf("\n");
+            }
+        }
+
+        fclose(fileTurnos);
+        break;
+    case 2:
+        printf("\nIntroduce el ID del Profesional que deseas buscar: ");
+        scanf("%d", &idProfesionalIngresado);
+
+        fileProfesionales = fopen("Profesionales.dat", "rb");
+        if (fileProfesionales == NULL)
+        {
+            printf("No se pudo abrir el archivo Profesionales.dat.\n");
+            return;
+        }
+
+        while (fread(&profesional, sizeof(Profesionales), 1, fileProfesionales) == 1)
+        {
+            if (profesional.IdProfesional == idProfesionalIngresado)
+            {
+                printf("\nProfesional encontrado: ");
+                printf("\n\nApellido y Nombre: %s\n", profesional.ApellidoNombre);
+                printf("DNI: %d\n", profesional.Dni);
+                printf("Telefono: %s\n", profesional.Telefono);
+                printf("============================================");
+                printf("\n");
+                printf("Turnos:\n");
+                break;
+            }
+        }
+
+        fclose(fileProfesionales);
+
+        fileTurnos = fopen("Turnos.dat", "rb");
+        if (fileTurnos == NULL)
+        {
+            printf("No se pudo abrir el archivo Turnos.dat.\n");
+            return;
+        }
+
+        while (fread(&turno, sizeof(Turnos), 1, fileTurnos) == 1)
+        {
+            if (turno.IdProfesional == idProfesionalIngresado)
+            {
+                printf("Fecha: %d/%d/%d\n", turno.fecha.dia, turno.fecha.mes, turno.fecha.ano);
+                printf("DNI del Paciente: %d\n", turno.DniPaciente);
+                printf("Detalle de Atencion: %s\n", turno.DetalledeAtencion);
+                printf("Pendiente: %s\n", turno.Pendiente ? "Si" : "No");
+                printf("\n");
+            }
+        }
+
+        fclose(fileTurnos);
+        break;
+    case 3:
+        fileTurnos = fopen("Turnos.dat", "rb");
+        if (fileTurnos == NULL)
+        {
+            printf("No se pudo abrir el archivo Turnos.dat.\n");
+            return;
+        }
+
+        while (fread(&turno, sizeof(Turnos), 1, fileTurnos) == 1)
+        {
+            printf("ID del Profesional: %d\n", turno.IdProfesional);
+            printf("Fecha: %d/%d/%d\n", turno.fecha.dia, turno.fecha.mes, turno.fecha.ano);
+            printf("DNI del Paciente: %d\n", turno.DniPaciente);
+            printf("Detalle de Atencion: %s\n", turno.DetalledeAtencion);
+            printf("Pendiente: %s\n", turno.Pendiente ? "Si" : "No");
+            printf("\n");
+        }
+
+        fclose(fileTurnos);
+        break;
+    default:
+        printf("Opcion no valida.\n");
+        break;
+    }
 }
 
 void crearUsuarioProvisorio()
@@ -353,17 +478,18 @@ void crearTurno()
     printf("Introduce el mes de la fecha: ");
     scanf("%d", &nuevoTurno.fecha.mes);
 
-    printf("Introduce el ano de la fecha: ");
+    printf("Introduce el año de la fecha: ");
     scanf("%d", &nuevoTurno.fecha.ano);
 
     printf("Introduce el DNI del Paciente: ");
     scanf("%d", &nuevoTurno.DniPaciente); // Aquí se lee el DNI del paciente
+    system("CLS");
 
     // Asigna true a Pendiente
     nuevoTurno.Pendiente = true;
 
-    printf("Introduce el Detalle de Atencion (maximo 379 caracteres): ");
-    scanf(" %[^\n]", nuevoTurno.DetalledeAtencion); // Lee hasta un salto de línea
+    // Predefine el Detalle de Atencion como "Turno pendiente"
+    strcpy(nuevoTurno.DetalledeAtencion, "Turno pendiente");
 
     file = fopen("Turnos.dat", "ab"); // Abre el archivo en modo de añadir en binario
     if (file == NULL)
@@ -375,8 +501,6 @@ void crearTurno()
     fwrite(&nuevoTurno, sizeof(Turnos), 1, file);
     fclose(file);
 }
-
-
 
 void visualizarTurno(int idRegistrado)
 {
@@ -637,7 +761,7 @@ void moduloRecepcionista()
         case 4:
             if (sesion_iniciada_recep)
             {
-                // Aqui va el codigo para mostrar el listado de atenciones
+                listarAtenciones();
             }
             else
             {
