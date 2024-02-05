@@ -357,6 +357,8 @@ void crearTurno()
     scanf("%d", &nuevoTurno.fecha.ano);
 
     printf("Introduce el DNI del Paciente: ");
+    scanf("%d", &nuevoTurno.DniPaciente); // Aquí se lee el DNI del paciente
+
     // Asigna true a Pendiente
     nuevoTurno.Pendiente = true;
 
@@ -373,6 +375,7 @@ void crearTurno()
     fwrite(&nuevoTurno, sizeof(Turnos), 1, file);
     fclose(file);
 }
+
 
 
 void visualizarTurno(int idRegistrado)
