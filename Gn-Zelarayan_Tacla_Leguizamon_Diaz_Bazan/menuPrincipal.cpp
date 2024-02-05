@@ -124,6 +124,54 @@ bool esContrasenaValida(const char *contrasena)
     return tieneMayuscula && tieneMinuscula && tieneDigito;
 }
 
+void registrarPacientes()
+{
+    struct Pacientes nuevoPaciente;
+    FILE *file;
+
+    printf("\nIntroduce el Apellido y Nombre: ");
+    fgets(nuevoPaciente.ApellidoNombre, 60, stdin);
+    nuevoPaciente.ApellidoNombre[strcspn(nuevoPaciente.ApellidoNombre, "\n")] = 0;  // Eliminar el salto de línea al final
+
+    printf("\nIntroduce el Domicilio: ");
+    fgets(nuevoPaciente.Domicilio, 60, stdin);
+    nuevoPaciente.Domicilio[strcspn(nuevoPaciente.Domicilio, "\n")] = 0;  // Eliminar el salto de línea al final
+
+    printf("\nIntroduce el DNI: ");
+    scanf("%d", &nuevoPaciente.DniPaciente);
+    getchar();  // Consumir el carácter de nueva línea
+
+    printf("\nIntroduce la Localidad: ");
+    fgets(nuevoPaciente.Localidad, 60, stdin);
+    nuevoPaciente.Localidad[strcspn(nuevoPaciente.Localidad, "\n")] = 0;  // Eliminar el salto de línea al final
+
+    printf("\nIntroduce la Fecha de nacimiento: ");
+    printf("\nDia: ");
+    scanf("%d", &nuevoPaciente.FechadeNacimiento.dia);
+    printf("\nMes: ");
+    scanf("%d", &nuevoPaciente.FechadeNacimiento.mes);
+    printf("\nAnio: ");
+    scanf("%d", &nuevoPaciente.FechadeNacimiento.ano);
+    getchar();  // Consumir el carácter de nueva línea
+
+    printf("\nIntroduce el Telefono: ");
+    fgets(nuevoPaciente.Telefono, 25, stdin);
+    nuevoPaciente.Telefono[strcspn(nuevoPaciente.Telefono, "\n")] = 0;  // Eliminar el salto de línea al final
+
+    file = fopen("Pacientes.dat", "ab");
+    if (file == NULL)
+    {
+        printf("No se pudo abrir el archivo.\n");
+        return;
+    }
+
+    fwrite(&nuevoPaciente, sizeof(Pacientes), 1, file);
+    fclose(file);
+
+    printf("\nPaciente creado con exito.\n");
+}
+
+
 void crearNuevoRecepcionista()
 {
     Usuarios nuevoRecepcionista;
@@ -564,7 +612,8 @@ void moduloRecepcionista()
         case 2:
             if (sesion_iniciada_recep)
             {
-                pacienteProvisorio();
+                // pacienteProvisorio();
+                registrarPacientes();
             }
             else
             {
@@ -630,7 +679,7 @@ void moduloAdministracion()
             {
                 // Aqui va el codigo para registrar profesionales
                 // crearUsuarioProvisorio();
-                // profesionalProvisorio();
+                profesionalProvisorio();
             }
             else
             {
