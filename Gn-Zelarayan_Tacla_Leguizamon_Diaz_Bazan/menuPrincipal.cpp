@@ -230,6 +230,60 @@ void crearNuevoRecepcionista()
     } while ((opcion == 's' || opcion == 'S') && !usuarioCreado); // Solo repite si el usuario quiere intentarlo de nuevo y no se ha creado un nuevo usuario
 }
 
+void registrarProfesionales()
+{
+    struct Profesionales nuevoProfesional;
+    FILE *file;
+
+    file = fopen("Profesionales.dat", "ab");
+    if (file == NULL)
+    {
+        printf("No se pudo abrir el archivo Profesionales.dat.\n");
+        return;
+    }
+
+    printf("\tIngresar usuario nuevo");
+    printf("\nEl usuario debe tener entre 6 y 10 caracteres.\nComenzar con letra minuscula.\nTener 2 letras mayusculas.\nY tener como maximo 3 digitos.");
+    printf("\nUsuario: ");
+    scanf("%s", nuevoProfesional.Usuario);
+    getchar();  // Consumir el carácter de nueva línea
+
+    printf("\n\nLa contraseña debe tener al menos una letra mayuscula, una minuscula y un numero.\nEntre 6 y 32 caracteres,\n");
+    printf("\nSolo caracteres alfanumericos.");
+    printf("\nConstraseña: ");
+    scanf("%s", nuevoProfesional.Contrasena);
+    getchar();  // Consumir el carácter de nueva línea
+
+    if(esNombreUsuarioValido(nuevoProfesional.Usuario) && esContrasenaValida(nuevoProfesional.Contrasena))
+    {
+        printf("\n\nIngresar los siguientes datos:");
+        printf("\nApellido y nombre del profesional: ");
+        fgets(nuevoProfesional.ApellidoNombre, 60, stdin);
+        nuevoProfesional.ApellidoNombre[strcspn(nuevoProfesional.ApellidoNombre, "\n")] = 0;  // Eliminar el salto de línea al final
+
+        printf("\nId del profesional: ");
+        scanf("%d", &nuevoProfesional.IdProfesional);
+        getchar();  // Consumir el carácter de nueva línea
+
+        printf("\nDNI: ");
+        scanf("%d", &nuevoProfesional.Dni);
+        getchar();  // Consumir el carácter de nueva línea
+
+        printf("\nTelefono: ");
+        fgets(nuevoProfesional.Telefono, 25, stdin);
+        nuevoProfesional.Telefono[strcspn(nuevoProfesional.Telefono, "\n")] = 0;  // Eliminar el salto de línea al final
+
+        fwrite(&nuevoProfesional, sizeof(Profesionales), 1, file);
+        printf("\n\nProfesional provisorio creado");
+    } 
+    else
+    {
+        printf("\nEl usuario y/o la contraseña son incorrectos");
+    }
+
+    fclose(file);
+}
+
 void listarAtenciones()
 {
     int opcion;
@@ -482,16 +536,14 @@ void crearTurno()
     scanf("%d", &nuevoTurno.fecha.ano);
 
     printf("Introduce el DNI del Paciente: ");
-    scanf("%d", &nuevoTurno.DniPaciente); // Aquí se lee el DNI del paciente
+    scanf("%d", &nuevoTurno.DniPaciente);
     system("CLS");
 
-    // Asigna true a Pendiente
     nuevoTurno.Pendiente = true;
 
-    // Predefine el Detalle de Atencion como "Turno pendiente"
     strcpy(nuevoTurno.DetalledeAtencion, "Turno pendiente");
 
-    file = fopen("Turnos.dat", "ab"); // Abre el archivo en modo de añadir en binario
+    file = fopen("Turnos.dat", "ab");
     if (file == NULL)
     {
         printf("No se pudo abrir el archivo.\n");
@@ -516,13 +568,12 @@ void visualizarTurno(int idRegistrado)
         return;
     }
 
-    // Lee la estructura de turno del archivo
     while (fread(&turno, sizeof(Turnos), 1, archivo))
     {
         if (turno.IdProfesional == idRegistrado && turno.Pendiente)
         {
             printf("\n================================================================\n");
-            printf("Fecha: %d/%d/%d\n", turno.fecha.dia, turno.fecha.mes, turno.fecha.ano); // Asume que Fecha es una estructura con dia, mes y ano
+            printf("Fecha: %d/%d/%d\n", turno.fecha.dia, turno.fecha.mes, turno.fecha.ano);
             printf("DniPaciente: %d\n", turno.DniPaciente);
             printf("DetalledeAtencion: %s\n", turno.DetalledeAtencion);
             turnoEncontrado = true;
@@ -621,6 +672,7 @@ void moduloConsultorios()
             scanf("%s", Usuario);
             printf("Ingrese la contrasena: ");
             scanf("%s", Contrasena);
+            system("CLS");
 
             // Abre el archivo para lectura
             archivo = fopen("Profesionales.dat", "rb");
@@ -687,6 +739,12 @@ void moduloRecepcionista()
     int opcion;
     bool continuar = true;
     bool sesion_iniciada_recep = false;
+    struct Usuarios usuario;
+    FILE *archivo;
+    char Usuario[11];
+    char Contrasena[32];
+    bool usuarioEncontrado = false;
+
     while (continuar)
     {
         printf("\nModulo del recepcionista\n");
@@ -702,10 +760,6 @@ void moduloRecepcionista()
         switch (opcion)
         {
         case 1:
-            struct Usuarios usuario;
-            FILE *archivo;
-            char Usuario[11];
-            char Contrasena[32];
             printf("Ingrese el nombre de usuario: ");
             scanf("%s", Usuario);
             printf("Ingrese la contrasena: ");
@@ -717,6 +771,7 @@ void moduloRecepcionista()
             if (archivo == NULL)
             {
                 printf("No se pudo abrir el archivo para lectura\n");
+                return;
             }
 
             // Lee la estructura de usuario del archivo
@@ -725,17 +780,20 @@ void moduloRecepcionista()
                 if (strcmp(usuario.Usuario, Usuario) == 0 && strcmp(usuario.Contrasena, Contrasena) == 0)
                 {
                     printf("\nInicio de sesion exitoso.\n");
-                    fclose(archivo);
+                    usuarioEncontrado = true;
                     sesion_iniciada_recep = true;
-                }
-                else
-                {
-                    printf("Nombre de usuario o contrasena incorrectos.\n");
+                    break;
                 }
             }
 
             // Cierra el archivo
             fclose(archivo);
+
+            // Imprime el mensaje de error solo si no se encontró un usuario que coincida
+            if (!usuarioEncontrado)
+            {
+                printf("Nombre de usuario o contrasena incorrectos.\n");
+            }
             break;
         case 2:
             if (sesion_iniciada_recep)
@@ -808,6 +866,7 @@ void moduloAdministracion()
                 // Aqui va el codigo para registrar profesionales
                 // crearUsuarioProvisorio();
                 // profesionalProvisorio();
+                registrarProfesionales();
             }
             else
             {
@@ -854,12 +913,14 @@ void moduloAdministracion()
             scanf("%s", Usuario);
             printf("Ingrese la contrasena: ");
             scanf("%s", Contrasena);
+            system("CLS");
 
             // Abre el archivo para lectura
             archivo = fopen("Recepcionistas.dat", "rb");
             if (archivo == NULL)
             {
                 printf("No se pudo abrir el archivo para lectura\n");
+                return;
             }
 
             // Lee la estructura de usuario del archivo
@@ -867,19 +928,20 @@ void moduloAdministracion()
             {
                 if (strcmp(usuario.Usuario, Usuario) == 0 && strcmp(usuario.Contrasena, Contrasena) == 0)
                 {
-                    printf("Inicio de sesion exitoso.\n");
-                    fclose(archivo);
+                    printf("\nInicio de sesion exitoso.\n");
                     sesion_iniciada_recep = true;
-                }
-                else
-                {
-                    printf("Nombre de usuario o contrasena incorrectos.\n");
+                    break;
                 }
             }
 
             // Cierra el archivo
             fclose(archivo);
 
+            // Imprime el mensaje de error solo si no se encontró un usuario que coincida
+            if (!sesion_iniciada_recep)
+            {
+                printf("Nombre de usuario o contrasena incorrectos.\n");
+            }
             break;
         case 6:
             printf("\nVolviendo al menu principal...\n");
